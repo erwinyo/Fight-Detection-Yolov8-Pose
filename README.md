@@ -57,7 +57,7 @@ Go to http://127.0.0.1:8000
 
 if the text "This is a testing page. It tells you this is working :)" showing then the server running.
 
-Go to http://127.0.0.1/start?video_input=https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_20mb.mp4
+Go to http://127.0.0.1:8000/start?video_input=https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_20mb.mp4
 
 If you see the result. Then it running
 
