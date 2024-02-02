@@ -1,10 +1,18 @@
+import os
+
 import torch
 import torch.nn as nn
-
 from fight_module.util import *
+import dotenv
+
+dotenv.load_dotenv()
 
 
 class ThreeLayerClassifier(nn.Module):
+    """
+    Neural network model with three layers for classification.
+    """
+
     def __init__(self, input_size, hidden_size1, output_size):
         super(ThreeLayerClassifier, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size1)
@@ -21,8 +29,12 @@ class ThreeLayerClassifier(nn.Module):
 
 
 class FightDetector:
-    def __init__(self, fight_model, fps):
-        # Architect the deep learning structure
+    """
+    Fight detection module using a deep learning model.
+    """
+
+    def __init__(self, fight_model):
+        # Load pre-trained model
         self.input_size = 16
         self.hidden_size = 8
         self.output_size = 1
@@ -30,7 +42,7 @@ class FightDetector:
         self.model.load_state_dict(torch.load(fight_model))
         self.model.eval()  # Set to evaluation mode
 
-        # Coordinate for angel
+        # Define keypoints for calculating angles
         self.coordinate_for_angel = [
             [8, 6, 2],
             [11, 5, 7],
@@ -42,55 +54,62 @@ class FightDetector:
             [11, 13, 15]
         ]
 
-        # Set up the thresholds
-        self.threshold = 0.8  # Dictate how deep learning is sure there is fight on that frame
-        self.conclusion_threshold = 2  # Dictate how hard the program conclude if a person is in fight action (1 - 3)
-        self.FPS = fps
+        # Set up detection thresholds
+        self.threshold = float(os.getenv("THRESHOLD"))
+        self.conclusion_threshold = float(os.getenv("CONCLUSION_THRESHOLD"))
+        self.final_threshold = float(os.getenv("FINAL_THRESHOLD"))
 
         # Event variables
         self.fight_detected = 0
 
     def detect(self, conf, xyn):
+        """
+        Detects fight action based on keypoints and confidence scores.
+
+        Args:
+            conf (list): Confidence scores for each keypoint.
+            xyn (list): Coordinates (x, y, visibility) for each keypoint.
+
+        Returns:
+            bool: True if fight detected, False otherwise.
+        """
         input_list = []
         keypoint_unseen = False
+
         for n in self.coordinate_for_angel:
-            # Keypoint number that we want to make new angel
+            # Keypoint numbers for creating angles
             first, mid, end = n[0], n[1], n[2]
 
-            # Gather the coordinate with keypoint number
+            # Gather coordinates with keypoint numbers
             c1, c2, c3 = xyn[first], xyn[mid], xyn[end]
-            # Check if all three coordinate of one key points is all zeros
+
+            # Check if all three coordinates of one keypoint are all zeros
             if is_coordinate_zero(c1, c2, c2):
                 keypoint_unseen = True
                 break
             else:
-                # Getting angel from three coordinate
+                # Calculate angle from three coordinates
                 input_list.append(calculate_angle(c1, c2, c3))
-                # Getting the confs mean of three of those coordinate
+                # Calculate the mean confidence score of the three coordinates
                 conf1, conf2, conf3 = conf[first], conf[mid], conf[end]
                 input_list.append(torch.mean(torch.Tensor([conf1, conf2, conf3])).item())
 
         if keypoint_unseen:
-            return
+            return False
 
-        # Make a prediction
+        # Make a prediction using the model
         prediction = self.model(torch.Tensor(input_list))
+
+        # Update fight detection count
         if prediction.item() > self.threshold:
-            # FIGHT
-            # this will grow exponentially according to number of person fighting on scene
-            # if there is two person, and this will be added 2 for each frame
             self.fight_detected += 1
         else:
-            # NO FIGHT
-            # this if statement is for fight_detected not exceed negative value
+            # Decrease count when no fight is detected
             if self.fight_detected > 0:
                 self.fight_detected -= self.conclusion_threshold
-                # this value will decide how hard the program will conclude there is a fight in the frame
-                # the higher the value, the more hard program to conclude
 
-        # Threshold for fight_detected value, when it concludes there is fight on the frame
-        # THRESHOLD = FPS * NUMBER OF PERSON DETECTED
-        if self.fight_detected > self.FPS:
+        # Check if a fight is concluded based on the detection count
+        if self.fight_detected > self.final_threshold:
             return True
         else:
             return False

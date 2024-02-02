@@ -1,4 +1,4 @@
-import base64
+import os
 import threading
 
 import cv2
@@ -6,11 +6,16 @@ import imutils
 import torch
 from flask import Flask, request, redirect
 from flask import Response
+import dotenv
 
 import fight_module
 
-YOLO_MODEL = "model/yolo/yolov8n-pose.pt"
-FIGHT_MODEL = "model/fight/fight-model.pth"
+
+# Load .env file
+dotenv.load_dotenv()
+
+YOLO_MODEL = os.getenv("YOLO_MODEL")
+FIGHT_MODEL = os.getenv("FIGHT_MODEL")
 
 # initialize the output frame and a lock used to ensure thread-safe
 # exchanges of the output frames (useful when multiple browsers/tabs
@@ -21,11 +26,13 @@ lock = threading.Lock()
 app = Flask(__name__)
 
 
+# Define a route for testing purposes
 @app.route("/")
 def index():
-    return "This is testing page. It tell you this is working :)"
+    return "This is a testing page. It tells you this is working :)"
 
 
+# Route to check NVIDIA GPU information
 @app.route("/nvidia")
 def nvidia():
     gpu_info = ""
@@ -39,6 +46,7 @@ def nvidia():
     return f"\n{gpu_info}\n"
 
 
+# Route for raw video stream
 @app.route("/raw")
 def raw():
     # return the response generated along with the specific media
@@ -46,6 +54,7 @@ def raw():
     return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
+# Route to start processing video stream
 @app.route("/start")
 def start():
     video_input = request.args.get("video_input")
@@ -63,11 +72,10 @@ def detect(video_input):
     # lock variables
     global outputFrame, lock
 
-    FPS = 20
     FIGHT_ON = False
-    FIGHT_ON_TIMEOUT = 20  # second
+    FIGHT_ON_TIMEOUT = 5  # second
 
-    fdet = fight_module.FightDetector(FIGHT_MODEL, FPS)
+    fdet = fight_module.FightDetector(FIGHT_MODEL)
     yolo = fight_module.YoloPoseEstimation(YOLO_MODEL)
     for result in yolo.estimate(video_input):
 
@@ -92,16 +100,16 @@ def detect(video_input):
             # Get interaction box
             interaction_boxes = fight_module.get_interaction_box(boxes)
 
-            # Process only what inside the interaction box
+            # Process only what is inside the interaction box
             for inter_box in interaction_boxes:
                 # Green box
                 cv2.rectangle(result_frame, (int(inter_box[0]), int(inter_box[1])),
                               (int(inter_box[2]), int(inter_box[3])), (0, 255, 0), 2)
 
-                # Prediction start here - per person - all person on the frame - including outside the interaction box
+                # Prediction starts here - per person - all person on the frame - including outside the interaction box
                 both_fighting = []
                 for conf, xyn, box, identity in zip(confs, xyn, boxes, ids):
-                    # Check if the person is within the interaction box - filter only person inside interaction box
+                    # Check if the person is within the interaction box - filter only persons inside the interaction box
                     center_person_x, center_person_y = (box[2] + box[0]) / 2, (box[3] + box[1]) / 2
                     if inter_box[0] <= center_person_x <= inter_box[2] and inter_box[1] <= center_person_y <= \
                             inter_box[3]:
@@ -109,58 +117,9 @@ def detect(video_input):
                         is_person_fighting = fdet.detect(conf, xyn)
                         both_fighting.append(is_person_fighting)
 
-                    # If fight occur then send cropped face to VMS
-                    # For Face Recognition Task
-                    if FIGHT_ON:
-                        # Left side
-                        right_shoulder_x = xyn[6][0]
-                        right_ear_x = xyn[4][0]
-
-                        # Right side
-                        left_shoulder_x = xyn[5][0]
-                        left_ear_x = xyn[3][0]
-
-                        # Take the average of left and right shoulder Y-value
-                        left_shoulder_y = xyn[5][1]
-                        right_shoulder_y = xyn[6][1]
-
-                        # Take nose Y-value
-                        nose_y = xyn[0][1]
-
-                        if (right_shoulder_x != 0 and right_ear_x != 0) \
-                                and (left_shoulder_x != 0 and left_ear_x != 0) \
-                                and (left_shoulder_y != 0 and right_shoulder_y != 0) \
-                                and (nose_y != 0):
-
-                            # Decide which one is the most fartest - shoulder or ear
-                            x1 = int(min(right_shoulder_x, right_ear_x) * frame_width)
-                            x2 = int(max(left_shoulder_x, left_ear_x) * frame_width)
-
-                            avg_shoulder_y = (left_shoulder_y + right_shoulder_y) / 2
-                            # Calculate the distance with previous average value and nose Y-value
-                            distance_nose_shoulder = abs(avg_shoulder_y - nose_y)
-                            # Setting up Y coordinate
-                            y1 = int((avg_shoulder_y - (distance_nose_shoulder * 2)) * frame_height)
-                            y2 = int(avg_shoulder_y * frame_height)
-
-                            # Negative coordinates not allowed
-                            if x1 >= 0 and x2 >= 0 and y1 >= 0 and y2 >= 0:
-                                width_face = x2 - x1
-                                height_face = y2 - y1
-                                print("CLING")
-                                # Less than 96 not allowed
-                                if width_face >= 96 and height_face >= 96:
-                                    cropped_face = orig_frame[y1:y2, x1:x2]
-                                    b64 = cv2.imencode('.jpg', cropped_face)[1]
-                                    b64 = base64.b64encode(b64)
-                                    b64 = str(b64)
-                                    b64 = b64[2:-1]
-
                 else:
                     # Check if both fighting
-                    if all(both_fighting) or FIGHT_ON:
-                        cv2.putText(result_frame, "FIGHTING", (int(inter_box[2]), int(inter_box[3])),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1, cv2.LINE_AA)
+                    if all(both_fighting):
                         FIGHT_ON = True
 
         except TypeError as te:
@@ -175,12 +134,13 @@ def detect(video_input):
 
         # RING THE ALARM
         if FIGHT_ON:
-            print("RINGGGGGG")
-            FIGHT_ON_TIMEOUT -= 1 / FPS
+            cv2.putText(result_frame, "FIGHTING", (int(inter_box[2]), int(inter_box[3])), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        (255, 255, 255), 1, cv2.LINE_AA)
+            FIGHT_ON_TIMEOUT -= 0.1
 
         if FIGHT_ON_TIMEOUT <= 0:
             FIGHT_ON = False
-            FIGHT_ON_TIMEOUT = 20
+            FIGHT_ON_TIMEOUT = 5
 
 
 def generate():
@@ -212,4 +172,4 @@ if __name__ == '__main__':
 
         port : 80 (up to you)
     """
-    app.run(host="0.0.0.0", port=80, debug=True, threaded=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=8000, debug=True, threaded=True, use_reloader=False)

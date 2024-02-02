@@ -4,30 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af54c5b3-1b38-47aa-82e0-50360dda3241" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Fight-Detection-Yolov8-Pose.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fight_module/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fight_module/fight_detector.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fight_module/util.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fight_module/yolo_pose_estimation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/FIGHT_190_230.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/FIGHT_250_305.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/FIGHT_355_390.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/FIGHT_460_505.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/FIGHT_595_640.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/NO_FIGHT_1010_1095.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/NO_FIGHT_1190_1275.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/NO_FIGHT_775_825.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sample/NO_FIGHT_910_965.mp4" afterDir="false" />
+    <list default="true" id="af54c5b3-1b38-47aa-82e0-50360dda3241" name="Changes" comment="initial commit">
+      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/HOW TO CONVERT" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/fight/fight-model.pth" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model/yolo/yolov8n-pose.pt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fight_module/fight_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/fight_module/fight_detector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/FIGHT_190_230.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/FIGHT_250_305.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/FIGHT_355_390.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/FIGHT_460_505.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/FIGHT_595_640.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/NO_FIGHT_1010_1095.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/NO_FIGHT_1190_1275.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/NO_FIGHT_775_825.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sample/NO_FIGHT_910_965.mp4" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +32,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="SET_USER_NAME_GLOBALLY" value="false" />
   </component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 7
@@ -62,8 +59,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/sample" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/sample" />
     </key>
   </component>
   <component name="RunManager">
@@ -106,12 +103,25 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1706839546205</updated>
-      <workItem from="1706839547461" duration="1083000" />
+      <workItem from="1706839547461" duration="7596000" />
     </task>
+    <task id="LOCAL-00001" summary="initial commit">
+      <option name="closed" value="true" />
+      <created>1706840698822</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1706840698822</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="initial commit" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Fight_Detection_Yolov8_Pose$main.coverage" NAME="main Coverage Results" MODIFIED="1706839549820" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

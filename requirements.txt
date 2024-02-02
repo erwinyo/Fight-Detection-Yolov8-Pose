@@ -8,3 +8,4 @@ lapx
 openvino
 onnx
 nvidia-tensorrt
+python-dotenv
