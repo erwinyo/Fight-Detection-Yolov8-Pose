@@ -1,0 +1,10 @@
+requests
+opencv-python
+numpy
+ultralytics
+imutils
+flask
+lapx
+openvino
+onnx
+nvidia-tensorrt
